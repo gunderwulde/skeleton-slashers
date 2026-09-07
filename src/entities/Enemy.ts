@@ -2,17 +2,19 @@ import * as Phaser from 'phaser';
 import { Actor } from './Actor';
 import { AttackAbility } from '../abilities/AttackAbility';
 import { Slash } from '../weapons/Slash';
+import { MovementInput } from '../input/UserInputController';
 
 /** Actor no jugador con movimiento aleatorio y ataque básico. */
 export class Enemy extends Actor {
     private directionTimer = 0;
     private target?: Actor;
+    private movementInput: MovementInput = { x: 0, y: 0 };
 
     constructor(scene: Phaser.Scene, x: number, y: number) {
         super(scene, x, y, 'skeleton', 'skeleton-walk', 3);
         this.setDrag(900);
+        this.speed = 70;
         this.grantAbility(new AttackAbility((scene, owner) => new Slash(scene, owner, 44) ));
-        this.tryActivateAbility('movement');
     }
 
     setTarget(target: Actor) {
@@ -28,10 +30,13 @@ export class Enemy extends Actor {
         if (this.directionTimer <= 0) {
             // Cambia de dirección periódicamente para patrullar sin perseguir al jugador.
             const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
-            this.setVelocity(Math.cos(angle) * 70, Math.sin(angle) * 70);
+            this.movementInput = { x: Math.cos(angle), y: Math.sin(angle) };
             this.directionTimer = Phaser.Math.Between(700, 1800);
         }
-        this.playMovementAnimation();
+    }
+
+    getMovementInput() {
+        return this.movementInput;
     }
 
     /** La IA solicita un ataque cuando el objetivo entra en su rango. */
@@ -42,12 +47,19 @@ export class Enemy extends Actor {
 
     /** Actualiza la patrulla y solicita ataques cuando el jugador entra en rango. */
     update(delta: number) {
+        this.updateRandomMovement(delta);
+        if ((this.movementInput.x !== 0 || this.movementInput.y !== 0)
+            && !this.hasActiveTag('basic-attack')
+            && !this.hasActiveTag('death')) {
+            this.tryActivateAbility('movement');
+        } else {
+            this.tryCancelAbility('movement');
+        }
         this.updateAbilities(delta);
-        if (this.isBusy || !this.active) {
+        if (!this.active) {
             return;
         }
 
-        this.updateRandomMovement(delta);
         const attackRange = 44;
         if (this.target && this.shouldAttack(this.target, attackRange)) {
             this.tryActivateAbility('auto-aim');

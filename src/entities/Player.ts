@@ -19,7 +19,6 @@ export class Player extends Actor {
         this.setDrag(1000);
         this.inputController = inputController;
         this.grantAbility(new AttackAbility());
-        this.tryActivateAbility('movement');
     }
 
     setTargets(targets: Actor[]) {
@@ -56,8 +55,16 @@ export class Player extends Actor {
 
     /** Actualiza entrada, movimiento y solicitudes de ataque del jugador. */
     update(delta: number) {
+        const movement = this.getMovementInput();
+        if ((movement.x !== 0 || movement.y !== 0)
+            && !this.hasActiveTag('basic-attack')
+            && !this.hasActiveTag('death')) {
+            this.tryActivateAbility('movement');
+        } else {
+            this.tryCancelAbility('movement');
+        }
         this.updateAbilities(delta);
-        if (this.isBusy || !this.active) {
+        if (!this.active) {
             return;
         }
 

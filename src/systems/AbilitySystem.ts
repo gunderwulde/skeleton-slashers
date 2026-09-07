@@ -24,7 +24,39 @@ export class AbilitySystem {
         if (!ability) {
             throw new Error(`La habilidad "${id}" no está concedida al actor.`);
         }
-        return ability.activate(this.owner);
+        if (!ability.canActivate(this.owner)) {
+            return false;
+        }
+        ability.cancellationTags.forEach((tag) => this.owner.tryCancelAbility(tag));
+        const activated = ability.activate(this.owner);
+        if (activated && ability.isActive) {
+            this.owner.addActiveTag(ability.tag);
+        }
+        return activated;
+    }
+
+    tryCancelAbility(idOrTag: string) {
+        const ability = this.findAbility(idOrTag);
+        if (!ability || !ability.isActive) {
+            return false;
+        }
+        const cancelled = ability.cancel(this.owner);
+        if (cancelled) {
+            this.owner.removeActiveTag(ability.tag);
+        }
+        return cancelled;
+    }
+
+    tryEndAbility(idOrTag: string) {
+        const ability = this.findAbility(idOrTag);
+        if (!ability || !ability.isActive) {
+            return false;
+        }
+        const ended = ability.end(this.owner);
+        if (ended) {
+            this.owner.removeActiveTag(ability.tag);
+        }
+        return ended;
     }
 
     activateHit(weapon: Weapon) {
@@ -38,5 +70,10 @@ export class AbilitySystem {
     /** Actualiza el cooldown y el loop de todas las habilidades del actor. */
     update(delta: number) {
         this.abilities.forEach((ability) => ability.update(delta));
+    }
+
+    private findAbility(idOrTag: string) {
+        return this.abilities.get(idOrTag)
+            ?? [...this.abilities.values()].find((ability) => ability.tag === idOrTag);
     }
 }

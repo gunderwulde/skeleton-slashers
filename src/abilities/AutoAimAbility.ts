@@ -5,7 +5,7 @@ import { GameplayAbility } from '../systems/GameplayAbility';
 /** Fija la dirección del siguiente ataque hacia un objetivo o vector explícito. */
 export class AutoAimAbility extends GameplayAbility {
     constructor() {
-        super('auto-aim', 0);
+        super('auto-aim', 0, 0, [], ['death', 'basic-attack'], []);
     }
 
     protected onActivate(owner: Actor) {

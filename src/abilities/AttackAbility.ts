@@ -9,12 +9,20 @@ export class AttackAbility extends GameplayAbility {
     constructor(
         private readonly weaponFactory: (scene: Phaser.Scene, owner: Actor) => Weapon = (scene, owner) => new Slash(scene, owner, 72),
     ) {
-        super('basic-attack', 450);
+        super('basic-attack', 450, 110, [], ['death', 'basic-attack'], ['movement']);
     }
 
     protected onActivate(owner: Actor) {
         const weapon = this.weaponFactory(owner.scene, owner).init();
         owner.scene.events.emit('weapon-created', weapon);
         owner.playAttackAnimation();
+    }
+
+    protected onEnd(owner: Actor) {
+        owner.setAngle(0);
+    }
+
+    protected onCancel(owner: Actor) {
+        owner.setAngle(0);
     }
 }

@@ -3,6 +3,7 @@ import { AbilitySystem } from '../systems/AbilitySystem';
 import { HitAbility } from '../abilities/HitAbility';
 import { MovementAbility } from '../abilities/MovementAbility';
 import { AutoAimAbility } from '../abilities/AutoAimAbility';
+import { DeathAbility } from '../abilities/DeathAbility';
 import { GameplayAbility } from '../systems/GameplayAbility';
 import type { Weapon } from '../weapons/Weapon';
         
@@ -10,11 +11,12 @@ import type { Weapon } from '../weapons/Weapon';
 export abstract class Actor extends Phaser.Physics.Arcade.Sprite {
     readonly maxHealth: number;
     health: number;
+    speed = 220;
     protected readonly walkAnimation: string;
-    isBusy = false;
     readonly abilities: AbilitySystem;
     readonly attackDirection = new Phaser.Math.Vector2(1, 0);
     private activeWeapons: Weapon[] = [];
+    readonly activeGameplayTags = new Set<string>();
 
     protected constructor(
         scene: Phaser.Scene,
@@ -32,6 +34,7 @@ export abstract class Actor extends Phaser.Physics.Arcade.Sprite {
         this.grantAbility(new HitAbility());
         this.grantAbility(new MovementAbility());
         this.grantAbility(new AutoAimAbility());
+        this.grantAbility(new DeathAbility());
         
         scene.add.existing(this);
         scene.physics.add.existing(this);
@@ -63,6 +66,30 @@ export abstract class Actor extends Phaser.Physics.Arcade.Sprite {
     /** Solicita la activación de una habilidad concreta. */
     tryActivateAbility(id: string) {
         return this.abilities.tryActivateAbility(id);
+    }
+
+    tryCancelAbility(idOrTag: string) {
+        return this.abilities.tryCancelAbility(idOrTag);
+    }
+
+    tryEndAbility(idOrTag: string) {
+        return this.abilities.tryEndAbility(idOrTag);
+    }
+
+    addActiveTag(tag: string) {
+        this.activeGameplayTags.add(tag);
+    }
+
+    removeActiveTag(tag: string) {
+        this.activeGameplayTags.delete(tag);
+    }
+
+    hasActiveTag(tag: string) {
+        return this.activeGameplayTags.has(tag);
+    }
+
+    getActiveGameplayTags() {
+        return [...this.activeGameplayTags];
     }
 
     /** Devuelve la entrada que consume la habilidad de movimiento. */
@@ -131,7 +158,6 @@ export abstract class Actor extends Phaser.Physics.Arcade.Sprite {
 
     /** Reproduce únicamente la animación corporal del ataque. */
     playAttackAnimation() {
-        this.isBusy = true;
         this.setVelocity(0, 0);
         this.anims.stop();
         const direction = this.flipX ? -1 : 1;
@@ -141,16 +167,11 @@ export abstract class Actor extends Phaser.Physics.Arcade.Sprite {
             duration: 110,
             yoyo: true,
             ease: 'Quad.Out',
-            onComplete: () => {
-                this.setAngle(0);
-                this.isBusy = false;
-            },
         });
     }
 
     /** Desactiva el cuerpo y reproduce la animación de muerte. */
     playDeath(onComplete: () => void) {
-        this.isBusy = true;
         this.setVelocity(0, 0);
         const body = this.body;
         if (!body) {
