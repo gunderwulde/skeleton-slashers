@@ -6,6 +6,8 @@ import * as path from 'path';
  * Configuración para manejar el servidor de desarrollo y recursos estáticos.
  */
 export default defineConfig({
+  // GitHub Pages sirve el proyecto bajo el nombre del repositorio.
+  base: process.env.GITHUB_ACTIONS ? '/skeleton-slashers/' : '/',
   // Establece la carpeta raíz del proyecto si es necesario
   root: path.resolve(__dirname), 
   build: {
