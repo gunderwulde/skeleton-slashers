@@ -55,13 +55,10 @@ export class Player extends Actor {
 
     /** Actualiza entrada, movimiento y solicitudes de ataque del jugador. */
     update(delta: number) {
-        const movement = this.getMovementInput();
-        if ((movement.x !== 0 || movement.y !== 0)
-            && !this.hasActiveTag('basic-attack')
-            && !this.hasActiveTag('death')) {
+        const movement = this.inputController.getMovement();
+        if (movement.x !== 0 || movement.y !== 0) {
+            this.lastMovementDirection.set(movement.x, movement.y).normalize();
             this.tryActivateAbility('movement');
-        } else {
-            this.tryCancelAbility('movement');
         }
         this.updateAbilities(delta);
         if (!this.active) {

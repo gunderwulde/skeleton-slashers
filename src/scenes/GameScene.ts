@@ -40,7 +40,7 @@ export class GameScene extends Phaser.Scene {
 
         this.physics.world.setBounds(0, 0, this.dungeonMap.worldWidth, this.dungeonMap.worldHeight);
         this.cameras.main.setBounds(0, 0, this.dungeonMap.worldWidth, this.dungeonMap.worldHeight);
-        this.cameras.main.setDeadzone(560, 420);
+        this.cameras.main.setDeadzone(100, 100);
         this.cameras.main.startFollow(this.player, true, 1, 1);
         this.events.on('weapon-created', this.registerWeapon, this);
     }
