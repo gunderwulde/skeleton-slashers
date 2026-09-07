@@ -8,13 +8,8 @@ import { Slash } from '../weapons/Slash';
 export class AttackAbility extends GameplayAbility {
     constructor(
         private readonly weaponFactory: (scene: Phaser.Scene, owner: Actor) => Weapon = (scene, owner) => new Slash(scene, owner, 72),
-        private readonly attackRange = 72,
     ) {
         super('basic-attack', 450);
-    }
-
-    getAttackRange() {
-        return this.attackRange;
     }
 
     protected onActivate(owner: Actor) {

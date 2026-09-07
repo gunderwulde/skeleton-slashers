@@ -4,9 +4,8 @@ import { HitAbility } from '../abilities/HitAbility';
 import { MovementAbility } from '../abilities/MovementAbility';
 import { AutoAimAbility } from '../abilities/AutoAimAbility';
 import { GameplayAbility } from '../systems/GameplayAbility';
-import { MovementInput } from '../input/UserInputController';
 import type { Weapon } from '../weapons/Weapon';
-
+        
 /** Entidad física común para el jugador y los enemigos. */
 export abstract class Actor extends Phaser.Physics.Arcade.Sprite {
     readonly maxHealth: number;
@@ -39,7 +38,7 @@ export abstract class Actor extends Phaser.Physics.Arcade.Sprite {
         this.setCollideWorldBounds(true);
     }
 
-    /** Actualiza las habilidades que tienen cooldown. */
+    /** Actualiza cooldowns y el ciclo de vida de las habilidades activas. */
     updateAbilities(delta: number) {
         this.abilities.update(delta);
     }
@@ -66,9 +65,9 @@ export abstract class Actor extends Phaser.Physics.Arcade.Sprite {
         return this.abilities.tryActivateAbility(id);
     }
 
-    /** Envía la entrada de movimiento al sistema de habilidades. */
-    applyMovement(input: MovementInput) {
-        this.abilities.applyMovement(input);
+    /** Devuelve la entrada que consume la habilidad de movimiento. */
+    getMovementInput() {
+        return { x: 0, y: 0 };
     }
 
     /** Devuelve una dirección manual de ataque si el actor dispone de ella. */

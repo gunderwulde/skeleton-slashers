@@ -1,14 +1,14 @@
 import { Actor } from '../entities/Actor';
-import { MovementInput } from '../input/UserInputController';
 import { GameplayAbility } from '../systems/GameplayAbility';
 
 /** Habilidad continua que convierte una entrada abstracta en velocidad física. */
 export class MovementAbility extends GameplayAbility {
     constructor() {
-        super('movement', 0);
+        super('movement', 0, -1);
     }
 
-    apply(owner: Actor, input: MovementInput) {
+    protected onUpdate(owner: Actor) {
+        const input = owner.getMovementInput();
         if (!owner.active || owner.isBusy) {
             owner.setVelocity(0, 0);
             return;
@@ -22,7 +22,6 @@ export class MovementAbility extends GameplayAbility {
         owner.playMovementAnimation();
     }
 
-    protected onActivate() {
-        // Movement is a continuously applied ability, not a one-shot action.
-    }
+    protected onActivate() {}
+
 }

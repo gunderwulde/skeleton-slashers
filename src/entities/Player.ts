@@ -19,6 +19,7 @@ export class Player extends Actor {
         this.setDrag(1000);
         this.inputController = inputController;
         this.grantAbility(new AttackAbility());
+        this.tryActivateAbility('movement');
     }
 
     setTargets(targets: Actor[]) {
@@ -29,12 +30,12 @@ export class Player extends Actor {
         return this.targets;
     }
 
-    updateMovement() {
+    getMovementInput() {
         const movement = this.inputController.getMovement();
         if (movement.x !== 0 || movement.y !== 0) {
             this.lastMovementDirection.set(movement.x, movement.y).normalize();
         }
-        this.applyMovement(movement);
+        return movement;
     }
 
     /** Indica si el controlador ha solicitado un ataque. */
@@ -60,7 +61,6 @@ export class Player extends Actor {
             return;
         }
 
-        this.updateMovement();
         if (this.wantsToAttack() && this.getAttackTargets().length > 0) {
             this.tryActivateAbility('auto-aim');
         }

@@ -11,7 +11,8 @@ export class Enemy extends Actor {
     constructor(scene: Phaser.Scene, x: number, y: number) {
         super(scene, x, y, 'skeleton', 'skeleton-walk', 3);
         this.setDrag(900);
-        this.grantAbility(new AttackAbility((scene, owner) => new Slash(scene, owner, 44), 44));
+        this.grantAbility(new AttackAbility((scene, owner) => new Slash(scene, owner, 44) ));
+        this.tryActivateAbility('movement');
     }
 
     setTarget(target: Actor) {

@@ -14,7 +14,7 @@ export class AutoAimAbility extends GameplayAbility {
         if (manualDirection && manualDirection.length() > 0) {
             this.setDirection(owner, manualDirection.x, manualDirection.y);
         } else {
-            const targetRange = owner.abilities.getAttackRange();
+            const targetRange = 20;
             const target = targets
                 .filter((candidate) => candidate.active)
                 .sort((left, right) =>
