@@ -11,7 +11,8 @@ export class AbilitySystem {
     constructor(private readonly owner: Actor) {}
 
     /** Grants an ability once to the actor. */
-    grantAbility(ability: GameplayAbility) {
+    grantAbility(ability: GameplayAbility, owner: Actor = this.owner) {
+        ability.bindOwner(owner);
         if (this.abilities.has(ability.id)) {
             throw new Error(`Ability "${ability.id}" is already granted.`);
         }
@@ -24,11 +25,11 @@ export class AbilitySystem {
         if (!ability) {
             throw new Error(`Ability "${id}" is not granted to the actor.`);
         }
-        if (!ability.canActivate(this.owner)) {
+        if (!ability.canActivate()) {
             return false;
         }
         ability.cancellationTags.forEach((tag) => this.owner.tryCancelAbility(tag));
-        const activated = ability.activate(this.owner);
+        const activated = ability.activate();
         if (activated && ability.isActive) {
             this.owner.addActiveTag(ability.tag);
         }
@@ -39,7 +40,7 @@ export class AbilitySystem {
         const abilities = this.findAbilities(idOrTag).filter((ability) => ability.isActive);
         let cancelled = false;
         abilities.forEach((ability) => {
-            if (ability.cancel(this.owner)) {
+            if (ability.cancel()) {
                 this.owner.removeActiveTag(ability.tag);
                 cancelled = true;
             }
@@ -51,7 +52,7 @@ export class AbilitySystem {
         const abilities = this.findAbilities(idOrTag).filter((ability) => ability.isActive);
         let ended = false;
         abilities.forEach((ability) => {
-            if (ability.end(this.owner)) {
+            if (ability.end()) {
                 this.owner.removeActiveTag(ability.tag);
                 ended = true;
             }
@@ -64,7 +65,7 @@ export class AbilitySystem {
         if (!(hit instanceof HitAbility)) {
             throw new Error('The actor has no granted hit ability.');
         }
-        return hit.activateFromWeapon(this.owner, weapon);
+        return hit.activateFromWeapon(weapon);
     }
 
     /** Updates cooldowns and loops for all actor abilities. */

@@ -6,7 +6,7 @@ description: Concise coding and architecture rules for Skeleton Slashers.
 # Project Style
 
 - Use TypeScript, Phaser 4, and Vite.
-- Keep gameplay in `src/`, split into `entities`, `abilities`, `systems`, `scenes`, `weapons`, `maps`, and `input`.
+- Keep gameplay in `src/`, split into `entities`, `abilities`, `systems`, `interfaces`, `scenes`, `weapons`, `maps`, and `input`.
 - Let `Scene` coordinate, `Actor` own character state, `AbilitySystem` manage abilities, and `Weapon` handle temporary attacks.
 - Use `PascalCase` for classes and class files; `camelCase` for members, methods, and variables; lowercase directories.
 - Prefer explicit types, `readonly`, and `private`/`protected`. Avoid `any`.

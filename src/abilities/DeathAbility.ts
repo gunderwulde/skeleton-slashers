@@ -7,11 +7,11 @@ export class DeathAbility extends GameplayAbility {
         super('death', 0, -1, [], [], ['movement', 'basic-attack', 'hit', 'auto-aim']);
     }
 
-    canActivate(owner: Actor) {
-        return owner.active && owner.health <= 0 && !owner.hasActiveTag(this.tag);
+    canActivate(): boolean {
+        return this.owner.active && this.owner.health <= 0 && !this.owner.hasActiveTag(this.tag);
     }
 
-    protected onActivate(owner: Actor) {
-        owner.playDeath(() => undefined);
+    protected onActivate() {
+        this.owner.playDeath(() => undefined);
     }
 }

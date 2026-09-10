@@ -1,7 +1,7 @@
 import * as Phaser from 'phaser';
 import { Actor } from './Actor';
 import { AttackAbility } from '../abilities/AttackAbility';
-import { AutoAimAbility } from '../abilities/AutoAimAbility';
+import { EnemyAutoAimAbility } from '../abilities/EnemyAutoAimAbility';
 import { DeathAbility } from '../abilities/DeathAbility';
 import { HitAbility } from '../abilities/HitAbility';
 import { MovementAbility } from '../abilities/MovementAbility';
@@ -20,7 +20,7 @@ export class Enemy extends Actor {
         this.speed = 70;
         this.grantAbility(new HitAbility());
         this.grantAbility(new MovementAbility());
-        this.grantAbility(new AutoAimAbility());
+        this.grantAbility(new EnemyAutoAimAbility());
         this.grantAbility(new DeathAbility());
         this.grantAbility(new AttackAbility((scene, owner) => new Slash(scene, owner, 44)));
     }
@@ -45,6 +45,10 @@ export class Enemy extends Actor {
 
     getMovementInput() {
         return this.movementInput;
+    }
+
+    getFallbackAttackDirection(): Phaser.Math.Vector2 {
+        return this.attackDirection.clone().normalize();
     }
 
     /** Returns whether the target is within attack range. */

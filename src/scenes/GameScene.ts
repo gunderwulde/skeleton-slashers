@@ -3,6 +3,8 @@ import { Actor } from '../entities/Actor';
 import { Enemy } from '../entities/Enemy';
 import { Player } from '../entities/Player';
 import { DungeonMap } from '../maps/DungeonMap';
+import { DependencyInjector } from '../core/DependencyInjector';
+import type { IPlayer } from '../interfaces/IPlayer';
 import { Weapon } from '../weapons/Weapon';
 
 /** Coordinates the world, actors, temporary weapons, and UI. */
@@ -60,6 +62,7 @@ export class GameScene extends Phaser.Scene {
 
     private createActors() {
         this.player = new Player(this, 100, 100);
+        DependencyInjector.Register<IPlayer>('player', this.player);
         this.enemies = [
             new Enemy(this, 900, 500),
             new Enemy(this, 1200, 700),

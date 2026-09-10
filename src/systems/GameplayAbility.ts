@@ -8,7 +8,7 @@ export abstract class GameplayAbility {
     private cooldownRemaining = 0;
     private durationRemaining = 0;
     private active = false;
-    private owner?: Actor;
+    private ownerInstance!: Actor;
     readonly requiredTags: readonly string[];
     readonly blockedTags: readonly string[];
     readonly cancellationTags: readonly string[];
@@ -35,11 +35,19 @@ export abstract class GameplayAbility {
     }
     private readonly durationMs: number;
 
+    bindOwner(owner: Actor): void {
+        this.ownerInstance = owner;
+    }
+
+    protected get owner(): Actor {
+        return this.ownerInstance;
+    }
+
     /** Reduces cooldowns and runs active ability loops. */
     update(delta: number): void {
         this.cooldownRemaining = Math.max(0, this.cooldownRemaining - delta);
-        if (this.active && this.owner) {
-            this.onUpdate(this.owner, delta);
+        if (this.active) {
+            this.onUpdate(delta);
             if (this.durationMs > 0) {
                 this.durationRemaining -= delta;
                 if (this.durationRemaining <= 0) {
@@ -50,25 +58,24 @@ export abstract class GameplayAbility {
     }
 
     /** Checks whether the ability can run in the current state. */
-    canActivate(owner: Actor): boolean {
-        return owner.active
+    canActivate(): boolean {
+        return this.owner.active
             && this.cooldownRemaining === 0
-            && this.requiredTags.every((tag) => owner.hasActiveTag(tag))
-            && this.blockedTags.every((tag) => !owner.hasActiveTag(tag))
-            && this.checkRequirements(owner);
+            && this.requiredTags.every((tag) => this.owner.hasActiveTag(tag))
+            && this.blockedTags.every((tag) => !this.owner.hasActiveTag(tag))
+            && this.checkRequirements();
     }
 
-    /** Intenta activar la habilidad y consume su enfriamiento si tiene éxito. */
-    activate(owner: Actor): boolean {
-        if (!this.canActivate(owner)) {
+    /** Attempts activation and consumes cooldown on success. */
+    activate(): boolean {
+        if (!this.canActivate()) {
             return false;
         }
 
         this.cooldownRemaining = this.cooldownMs;
-        this.owner = owner;
         this.active = this.durationMs !== 0;
         this.durationRemaining = this.durationMs;
-        this.onActivate(owner);
+        this.onActivate();
         return true;
     }
 
@@ -76,35 +83,35 @@ export abstract class GameplayAbility {
         return this.active;
     }
 
-    end(owner: Actor): boolean {
+    end(): boolean {
         if (!this.active) {
             return false;
         }
         this.active = false;
-        this.onEnd(owner);
+        this.onEnd();
         return true;
     }
 
-    cancel(owner: Actor): boolean {
+    cancel(): boolean {
         if (!this.active) {
             return false;
         }
         this.active = false;
-        this.onCancel(owner);
+        this.onCancel();
         return true;
     }
 
     /** Extension point for ability-specific requirements. */
-    protected checkRequirements(_owner: Actor): boolean {
+    protected checkRequirements(): boolean {
         return true;
     }
 
-    protected onUpdate(_owner: Actor, _delta: number) {}
+    protected onUpdate(_delta: number) {}
 
-    protected onEnd(_owner: Actor) {}
+    protected onEnd() {}
 
-    protected onCancel(_owner: Actor) {}
+    protected onCancel() {}
 
     /** Concrete implementation executed on activation. */
-    protected abstract onActivate(owner: Actor): void;
+    protected abstract onActivate(): void;
 }

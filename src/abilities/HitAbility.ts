@@ -8,18 +8,18 @@ export class HitAbility extends GameplayAbility {
         super('hit', 0, 0, [], ['death'], ['movement']);
     }
 
-    protected onActivate(owner: Actor) {
-        owner.receiveDamage();
+    protected onActivate() {
+        this.owner.receiveDamage();
 
-        if (owner.health <= 0) {
-            owner.tryActivateAbility('death');
+        if (this.owner.health <= 0) {
+            this.owner.tryActivateAbility('death');
         }
     }
 
-    activateFromWeapon(owner: Actor, weapon: Weapon): boolean {
+    activateFromWeapon(weapon: Weapon): boolean {
         if (!weapon.owner.active) {
             return false;
         }
-        return this.activate(owner);
+        return this.activate();
     }
 }

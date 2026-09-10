@@ -7,10 +7,10 @@ export class MovementAbility extends GameplayAbility {
         super('movement', 0, -1, [], ['death', 'basic-attack'], []);
     }
 
-    protected onUpdate(owner: Actor, _delta: number): void {
-        const input = owner.getMovementInput();
-        if (!owner.active || owner.hasActiveTag('basic-attack') || owner.hasActiveTag('death')) {
-            owner.setVelocity(0, 0);
+    protected onUpdate(_delta: number): void {
+        const input = this.owner.getMovementInput();
+        if (!this.owner.active || this.owner.hasActiveTag('basic-attack') || this.owner.hasActiveTag('death')) {
+            this.owner.setVelocity(0, 0);
             return;
         }
 
@@ -18,15 +18,15 @@ export class MovementAbility extends GameplayAbility {
         const length = Math.hypot(input.x, input.y);
         const normalizedX = length > 1 ? input.x / length : input.x;
         const normalizedY = length > 1 ? input.y / length : input.y;
-        owner.setVelocity(normalizedX * owner.speed, normalizedY * owner.speed);
-        owner.playMovementAnimation();
+        this.owner.setVelocity(normalizedX * this.owner.speed, normalizedY * this.owner.speed);
+        this.owner.playMovementAnimation();
     }
 
     protected onActivate() {}
 
-    protected onCancel(owner: Actor) {
-        owner.setVelocity(0, 0);
-        owner.playMovementAnimation();
+    protected onCancel() {
+        this.owner.setVelocity(0, 0);
+        this.owner.playMovementAnimation();
     }
 
 }

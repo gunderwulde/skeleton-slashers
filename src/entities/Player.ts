@@ -1,7 +1,7 @@
 import * as Phaser from 'phaser';
 import { Actor } from './Actor';
 import { AttackAbility } from '../abilities/AttackAbility';
-import { AutoAimAbility } from '../abilities/AutoAimAbility';
+import { PlayerAutoAimAbility } from '../abilities/PlayerAutoAimAbility';
 import { DeathAbility } from '../abilities/DeathAbility';
 import { HitAbility } from '../abilities/HitAbility';
 import { MovementAbility } from '../abilities/MovementAbility';
@@ -24,7 +24,7 @@ export class Player extends Actor {
         this.inputController = inputController;
         this.grantAbility(new HitAbility());
         this.grantAbility(new MovementAbility());
-        this.grantAbility(new AutoAimAbility());
+        this.grantAbility(new PlayerAutoAimAbility());
         this.grantAbility(new DeathAbility());
         this.grantAbility(new AttackAbility());
     }

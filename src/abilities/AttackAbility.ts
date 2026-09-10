@@ -12,17 +12,17 @@ export class AttackAbility extends GameplayAbility {
         super('basic-attack', 450, 110, [], ['death', 'basic-attack'], ['movement']);
     }
 
-    protected onActivate(owner: Actor) {
-        const weapon = this.weaponFactory(owner.scene, owner).init();
-        owner.scene.events.emit('weapon-created', weapon);
-        owner.playAttackAnimation();
+    protected onActivate() {
+        const weapon = this.weaponFactory(this.owner.scene, this.owner).init();
+        this.owner.scene.events.emit('weapon-created', weapon);
+        this.owner.playAttackAnimation();
     }
 
-    protected onEnd(owner: Actor) {
-        owner.setAngle(0);
+    protected onEnd() {
+        this.owner.setAngle(0);
     }
 
-    protected onCancel(owner: Actor) {
-        owner.setAngle(0);
+    protected onCancel() {
+        this.owner.setAngle(0);
     }
 }
