@@ -1,15 +1,18 @@
 import * as Phaser from 'phaser';
+import { Variable } from '../core/Variable';
 import { AbilitySystem } from '../systems/AbilitySystem';
 import { GameplayAbility } from '../systems/GameplayAbility';
+import { ActorHub } from '../ui/ActorHub';
 import type { Weapon } from '../weapons/Weapon';
         
 /** Shared physical entity for players and enemies. */
 export abstract class Actor extends Phaser.Physics.Arcade.Sprite {
     readonly maxHealth: number;
-    health: number;
+    private readonly healthVariable: Variable<number>;
     speed = 220;
     protected readonly walkAnimation: string;
     readonly abilities: AbilitySystem;
+    readonly actorHub: ActorHub;
     readonly attackDirection = new Phaser.Math.Vector2(1, 0);
     private activeWeapons: Weapon[] = [];
     readonly activeGameplayTags = new Set<string>();
@@ -24,13 +27,26 @@ export abstract class Actor extends Phaser.Physics.Arcade.Sprite {
     ) {
         super(scene, x, y, texture, 0);
         this.maxHealth = maxHealth;
-        this.health = maxHealth;
+        this.healthVariable = new Variable<number>(maxHealth);
         this.walkAnimation = walkAnimation;
         this.abilities = new AbilitySystem(this);
 
         scene.add.existing(this);
         scene.physics.add.existing(this);
         this.setCollideWorldBounds(true);
+        this.actorHub = new ActorHub(this);
+    }
+
+    get health(): number {
+        return this.healthVariable.Get();
+    }
+
+    set health(value: number) {
+        this.healthVariable.Set(value);
+    }
+
+    getHealthVariable(): Variable<number> {
+        return this.healthVariable;
     }
 
     /** Updates cooldowns and the lifecycle of active abilities. */

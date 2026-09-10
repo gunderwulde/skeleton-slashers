@@ -6,6 +6,7 @@ import { DungeonMap } from '../maps/DungeonMap';
 import { DependencyInjector } from '../core/DependencyInjector';
 import type { IPlayer } from '../interfaces/IPlayer';
 import { Weapon } from '../weapons/Weapon';
+import { MainUI } from '../ui/MainUI';
 
 /** Coordinates the world, actors, temporary weapons, and UI. */
 export class GameScene extends Phaser.Scene {
@@ -14,7 +15,7 @@ export class GameScene extends Phaser.Scene {
     private actors: Actor[] = [];
     private weapons: Weapon[] = [];
     private dungeonMap!: DungeonMap;
-    private statusText!: Phaser.GameObjects.Text;
+    private mainUI!: MainUI;
 
     constructor() {
         super('GameScene');
@@ -38,7 +39,7 @@ export class GameScene extends Phaser.Scene {
         this.createAnimations();
         this.dungeonMap = new DungeonMap(this);
         this.createActors();
-        this.createInterface();
+        this.mainUI = new MainUI(this, this.player);
 
         this.physics.world.setBounds(0, 0, this.dungeonMap.worldWidth, this.dungeonMap.worldHeight);
         this.cameras.main.setBounds(0, 0, this.dungeonMap.worldWidth, this.dungeonMap.worldHeight);
@@ -73,32 +74,16 @@ export class GameScene extends Phaser.Scene {
         this.enemies.forEach((enemy) => enemy.setTarget(this.player));
 
         this.actors.forEach((actor) => {
-            actor.on('damaged', this.updateStatus, this);
             actor.on('died', () => this.handleActorDeath(actor));
             this.physics.add.collider(actor, this.dungeonMap.layer);
         });
     }
 
-    private createInterface() {
-        this.add.text(50, 40, 'Mazmorra de las catacumbas', {
-            fontSize: '24px',
-            color: '#e7d27c',
-            fontStyle: 'bold',
-        });
-        this.statusText = this.add.text(16, 16, '', {
-            fontSize: '16px',
-            color: '#ffffff',
-            backgroundColor: '#171923',
-            padding: { x: 8, y: 6 },
-        }).setScrollFactor(0).setDepth(10);
-        this.updateStatus();
-    }
-
     private handleActorDeath(actor: Actor) {
         if (actor === this.player) {
-            this.statusText.setText('You died. Reload the page to try again.');
+            this.mainUI.showPlayerDeath();
         } else if (this.enemies.every((enemy) => !enemy.active)) {
-            this.statusText.setText('All skeletons have been defeated.');
+            this.mainUI.showVictory();
         }
     }
 
@@ -121,11 +106,4 @@ export class GameScene extends Phaser.Scene {
         });
     }
 
-    private updateStatus() {
-        if (this.statusText) {
-            this.statusText.setText(
-                `Vida: ${'♥'.repeat(this.player.health)}${'♡'.repeat(this.player.maxHealth - this.player.health)}   WASD: mover   Click izquierdo: atacar`,
-            );
-        }
-    }
 }
