@@ -1,7 +1,7 @@
 import * as Phaser from 'phaser';
 import { Actor } from '../entities/Actor';
 
-/** Referencia temporal de un ataque activo en el mundo. */
+/** Temporary reference to an active attack in the world. */
 export abstract class Weapon extends Phaser.GameObjects.Graphics {
     private readonly hitActors = new Set<Actor>();
     protected readonly origin: Phaser.Math.Vector2;
@@ -22,7 +22,7 @@ export abstract class Weapon extends Phaser.GameObjects.Graphics {
         this.setDepth(owner.depth + 1);
     }
 
-    /** Inicializa la representación visual cuando la subclase ya está construida. */
+    /** Initializes the visual representation after the subclass is constructed. */
     init() {
         this.draw();
         return this;

@@ -1,7 +1,7 @@
 import { Actor } from '../entities/Actor';
 import { GameplayAbility } from '../systems/GameplayAbility';
 
-/** Desactiva al actor y bloquea el resto de habilidades durante su muerte. */
+/** Disables the actor and blocks other abilities during death. */
 export class DeathAbility extends GameplayAbility {
     constructor() {
         super('death', 0, -1, [], [], ['movement', 'basic-attack', 'hit', 'auto-aim']);

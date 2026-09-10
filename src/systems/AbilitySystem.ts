@@ -4,25 +4,25 @@ import { Weapon } from '../weapons/Weapon';
 import { HitAbility } from '../abilities/HitAbility';
 import { AttackAbility } from '../abilities/AttackAbility';
 
-/** Registro de habilidades concedidas a un actor y punto de activación común. */
+/** Registry of granted abilities and common activation entry point. */
 export class AbilitySystem {
     private readonly abilities = new Map<string, GameplayAbility>();
 
     constructor(private readonly owner: Actor) {}
 
-    /** Concede una habilidad una sola vez al actor. */
+    /** Grants an ability once to the actor. */
     grantAbility(ability: GameplayAbility) {
         if (this.abilities.has(ability.id)) {
-            throw new Error(`La habilidad "${ability.id}" ya está concedida.`);
+            throw new Error(`Ability "${ability.id}" is already granted.`);
         }
         this.abilities.set(ability.id, ability);
     }
 
-    /** Activa una habilidad por su identificador. */
+    /** Activates an ability by identifier. */
     tryActivateAbility(id: string) {
         const ability = this.abilities.get(id);
         if (!ability) {
-            throw new Error(`La habilidad "${id}" no está concedida al actor.`);
+            throw new Error(`Ability "${id}" is not granted to the actor.`);
         }
         if (!ability.canActivate(this.owner)) {
             return false;
@@ -35,45 +35,47 @@ export class AbilitySystem {
         return activated;
     }
 
-    tryCancelAbility(idOrTag: string) {
-        const ability = this.findAbility(idOrTag);
-        if (!ability || !ability.isActive) {
-            return false;
-        }
-        const cancelled = ability.cancel(this.owner);
-        if (cancelled) {
-            this.owner.removeActiveTag(ability.tag);
-        }
+    tryCancelAbility(idOrTag: string): boolean {
+        const abilities = this.findAbilities(idOrTag).filter((ability) => ability.isActive);
+        let cancelled = false;
+        abilities.forEach((ability) => {
+            if (ability.cancel(this.owner)) {
+                this.owner.removeActiveTag(ability.tag);
+                cancelled = true;
+            }
+        });
         return cancelled;
     }
 
-    tryEndAbility(idOrTag: string) {
-        const ability = this.findAbility(idOrTag);
-        if (!ability || !ability.isActive) {
-            return false;
-        }
-        const ended = ability.end(this.owner);
-        if (ended) {
-            this.owner.removeActiveTag(ability.tag);
-        }
+    tryEndAbility(idOrTag: string): boolean {
+        const abilities = this.findAbilities(idOrTag).filter((ability) => ability.isActive);
+        let ended = false;
+        abilities.forEach((ability) => {
+            if (ability.end(this.owner)) {
+                this.owner.removeActiveTag(ability.tag);
+                ended = true;
+            }
+        });
         return ended;
     }
 
     activateHit(weapon: Weapon) {
         const hit = this.abilities.get('hit');
         if (!(hit instanceof HitAbility)) {
-            throw new Error('El actor no tiene concedida la habilidad de impacto.');
+            throw new Error('The actor has no granted hit ability.');
         }
         return hit.activateFromWeapon(this.owner, weapon);
     }
 
-    /** Actualiza el cooldown y el loop de todas las habilidades del actor. */
+    /** Updates cooldowns and loops for all actor abilities. */
     update(delta: number) {
         this.abilities.forEach((ability) => ability.update(delta));
     }
 
-    private findAbility(idOrTag: string) {
-        return this.abilities.get(idOrTag)
-            ?? [...this.abilities.values()].find((ability) => ability.tag === idOrTag);
+    private findAbilities(idOrTag: string): GameplayAbility[] {
+        const ability = this.abilities.get(idOrTag);
+        return ability
+            ? [ability]
+            : [...this.abilities.values()].filter((candidate) => candidate.tag === idOrTag);
     }
 }

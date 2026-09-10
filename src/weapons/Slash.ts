@@ -2,7 +2,7 @@ import * as Phaser from 'phaser';
 import { Actor } from '../entities/Actor';
 import { Weapon } from './Weapon';
 
-/** Arma de ataque frontal con forma de arco. */
+/** Frontal arc-shaped attack weapon. */
 export class Slash extends Weapon {
     constructor(
         scene: Phaser.Scene,

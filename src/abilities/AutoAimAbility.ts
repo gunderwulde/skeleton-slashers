@@ -2,7 +2,7 @@ import * as Phaser from 'phaser';
 import { Actor } from '../entities/Actor';
 import { GameplayAbility } from '../systems/GameplayAbility';
 
-/** Fija la dirección del siguiente ataque hacia un objetivo o vector explícito. */
+/** Sets the next attack direction toward a target or explicit vector. */
 export class AutoAimAbility extends GameplayAbility {
     constructor() {
         super('auto-aim', 0, 0, [], ['death', 'basic-attack'], []);

@@ -1,10 +1,14 @@
 import * as Phaser from 'phaser';
 import { Actor } from './Actor';
 import { AttackAbility } from '../abilities/AttackAbility';
-import { Slash } from '../weapons/Slash';
+import { AutoAimAbility } from '../abilities/AutoAimAbility';
+import { DeathAbility } from '../abilities/DeathAbility';
+import { HitAbility } from '../abilities/HitAbility';
+import { MovementAbility } from '../abilities/MovementAbility';
 import { MovementInput } from '../input/UserInputController';
+import { Slash } from '../weapons/Slash';
 
-/** Actor no jugador con movimiento aleatorio y ataque básico. */
+/** Non-player actor with random movement and a basic attack. */
 export class Enemy extends Actor {
     private directionTimer = 0;
     private target?: Actor;
@@ -14,7 +18,11 @@ export class Enemy extends Actor {
         super(scene, x, y, 'skeleton', 'skeleton-walk', 3);
         this.setDrag(900);
         this.speed = 70;
-        this.grantAbility(new AttackAbility((scene, owner) => new Slash(scene, owner, 44) ));
+        this.grantAbility(new HitAbility());
+        this.grantAbility(new MovementAbility());
+        this.grantAbility(new AutoAimAbility());
+        this.grantAbility(new DeathAbility());
+        this.grantAbility(new AttackAbility((scene, owner) => new Slash(scene, owner, 44)));
     }
 
     setTarget(target: Actor) {
@@ -28,7 +36,7 @@ export class Enemy extends Actor {
     updateRandomMovement(delta: number) {
         this.directionTimer -= delta;
         if (this.directionTimer <= 0) {
-            // Cambia de dirección periódicamente para patrullar sin perseguir al jugador.
+            // Change direction periodically to patrol without pursuing the player.
             const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
             this.movementInput = { x: Math.cos(angle), y: Math.sin(angle) };
             this.directionTimer = Phaser.Math.Between(700, 1800);
@@ -39,13 +47,13 @@ export class Enemy extends Actor {
         return this.movementInput;
     }
 
-    /** La IA solicita un ataque cuando el objetivo entra en su rango. */
+    /** Returns whether the target is within attack range. */
     shouldAttack(target: Actor, range: number) {
         return target.active
             && Phaser.Math.Distance.Between(this.x, this.y, target.x, target.y) <= range;
     }
 
-    /** Actualiza la patrulla y solicita ataques cuando el jugador entra en rango. */
+    /** Updates patrol movement and attacks when the player is in range. */
     update(delta: number) {
         this.updateRandomMovement(delta);
         if ((this.movementInput.x !== 0 || this.movementInput.y !== 0)
@@ -56,6 +64,9 @@ export class Enemy extends Actor {
             this.tryCancelAbility('movement');
         }
         this.updateAbilities(delta);
+        if (this.movementInput.x !== 0 || this.movementInput.y !== 0) {
+            this.tryActivateAbility('movement');
+        }
         if (!this.active) {
             return;
         }

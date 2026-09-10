@@ -2,7 +2,7 @@ import { Actor } from '../entities/Actor';
 import { GameplayAbility } from '../systems/GameplayAbility';
 import { Weapon } from '../weapons/Weapon';
 
-/** Recibe y valida el impacto producido por un arma o atacante. */
+/** Receives and validates impact from a weapon or attacker. */
 export class HitAbility extends GameplayAbility {
     constructor() {
         super('hit', 0, 0, [], ['death'], ['movement']);
@@ -16,11 +16,10 @@ export class HitAbility extends GameplayAbility {
         }
     }
 
-    activateFromWeapon(owner: Actor, weapon: Weapon) {
-        if (!owner.active || owner.hasActiveTag('death') || !weapon.owner.active) {
+    activateFromWeapon(owner: Actor, weapon: Weapon): boolean {
+        if (!weapon.owner.active) {
             return false;
         }
-        this.onActivate(owner);
-        return true;
+        return this.activate(owner);
     }
 }

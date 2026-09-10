@@ -1,9 +1,13 @@
 import * as Phaser from 'phaser';
 import { Actor } from './Actor';
 import { AttackAbility } from '../abilities/AttackAbility';
+import { AutoAimAbility } from '../abilities/AutoAimAbility';
+import { DeathAbility } from '../abilities/DeathAbility';
+import { HitAbility } from '../abilities/HitAbility';
+import { MovementAbility } from '../abilities/MovementAbility';
 import { KeyboardMouseController, UserInputController } from '../input/UserInputController';
 
-/** Actor controlado por el usuario y equipado con el ataque básico. */
+/** User-controlled actor equipped with a basic attack. */
 export class Player extends Actor {
     private readonly inputController: UserInputController;
     private readonly lastMovementDirection = new Phaser.Math.Vector2(1, 0);
@@ -18,6 +22,10 @@ export class Player extends Actor {
         super(scene, x, y, 'player', 'player-walk', 3);
         this.setDrag(1000);
         this.inputController = inputController;
+        this.grantAbility(new HitAbility());
+        this.grantAbility(new MovementAbility());
+        this.grantAbility(new AutoAimAbility());
+        this.grantAbility(new DeathAbility());
         this.grantAbility(new AttackAbility());
     }
 
@@ -25,11 +33,11 @@ export class Player extends Actor {
         this.targets = targets;
     }
 
-    getAttackTargets() {
+    getAttackTargets(): Actor[] {
         return this.targets;
     }
 
-    getMovementInput() {
+    getMovementInput(): { x: number; y: number } {
         const movement = this.inputController.getMovement();
         if (movement.x !== 0 || movement.y !== 0) {
             this.lastMovementDirection.set(movement.x, movement.y).normalize();
@@ -37,30 +45,34 @@ export class Player extends Actor {
         return movement;
     }
 
-    /** Indica si el controlador ha solicitado un ataque. */
+    /** Returns whether the controller requested an attack. */
     wantsToAttack() {
         return this.inputController.consumeAttackRequest();
     }
 
-    getManualAttackDirection() {
+    getManualAttackDirection(): Phaser.Math.Vector2 | undefined {
         const direction = this.inputController.getAttackDirection();
         return direction
             ? new Phaser.Math.Vector2(direction.x, direction.y)
             : undefined;
     }
 
-    getFallbackAttackDirection() {
+    getFallbackAttackDirection(): Phaser.Math.Vector2 {
         return this.lastMovementDirection.clone();
     }
 
-    /** Actualiza entrada, movimiento y solicitudes de ataque del jugador. */
+    /** Updates input, movement, and player attack requests. */
     update(delta: number) {
-        const movement = this.inputController.getMovement();
+        const movement = this.getMovementInput();
         if (movement.x !== 0 || movement.y !== 0) {
-            this.lastMovementDirection.set(movement.x, movement.y).normalize();
             this.tryActivateAbility('movement');
+        } else {
+            this.tryCancelAbility('movement');
         }
         this.updateAbilities(delta);
+        if (movement.x !== 0 || movement.y !== 0) {
+            this.tryActivateAbility('movement');
+        }
         if (!this.active) {
             return;
         }

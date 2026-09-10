@@ -1,6 +1,6 @@
 import { Actor } from '../entities/Actor';
 
-/** Clase base para habilidades con requisitos y enfriamiento. */
+/** Base class for abilities with requirements and cooldowns. */
 export abstract class GameplayAbility {
     readonly tag: string;
     readonly id: string;
@@ -14,8 +14,8 @@ export abstract class GameplayAbility {
     readonly cancellationTags: readonly string[];
 
     /**
-     * @param durationMs 0 para una habilidad instantánea, positivo para una
-     * duración limitada y -1 para una habilidad permanente.
+     * @param durationMs 0 for an instant ability, positive for a limited
+     * duration, and -1 for a permanent ability.
      */
     protected constructor(
         tag: string,
@@ -35,8 +35,8 @@ export abstract class GameplayAbility {
     }
     private readonly durationMs: number;
 
-    /** Reduce el enfriamiento y ejecuta el loop de las habilidades activas. */
-    update(delta: number) {
+    /** Reduces cooldowns and runs active ability loops. */
+    update(delta: number): void {
         this.cooldownRemaining = Math.max(0, this.cooldownRemaining - delta);
         if (this.active && this.owner) {
             this.onUpdate(this.owner, delta);
@@ -49,8 +49,8 @@ export abstract class GameplayAbility {
         }
     }
 
-    /** Comprueba si la habilidad puede ejecutarse en el estado actual. */
-    canActivate(owner: Actor) {
+    /** Checks whether the ability can run in the current state. */
+    canActivate(owner: Actor): boolean {
         return owner.active
             && this.cooldownRemaining === 0
             && this.requiredTags.every((tag) => owner.hasActiveTag(tag))
@@ -59,7 +59,7 @@ export abstract class GameplayAbility {
     }
 
     /** Intenta activar la habilidad y consume su enfriamiento si tiene éxito. */
-    activate(owner: Actor) {
+    activate(owner: Actor): boolean {
         if (!this.canActivate(owner)) {
             return false;
         }
@@ -72,11 +72,11 @@ export abstract class GameplayAbility {
         return true;
     }
 
-    get isActive() {
+    get isActive(): boolean {
         return this.active;
     }
 
-    end(owner: Actor) {
+    end(owner: Actor): boolean {
         if (!this.active) {
             return false;
         }
@@ -85,7 +85,7 @@ export abstract class GameplayAbility {
         return true;
     }
 
-    cancel(owner: Actor) {
+    cancel(owner: Actor): boolean {
         if (!this.active) {
             return false;
         }
@@ -94,8 +94,8 @@ export abstract class GameplayAbility {
         return true;
     }
 
-    /** Punto de extensión para requisitos específicos de cada habilidad. */
-    protected checkRequirements(_owner: Actor) {
+    /** Extension point for ability-specific requirements. */
+    protected checkRequirements(_owner: Actor): boolean {
         return true;
     }
 
@@ -105,6 +105,6 @@ export abstract class GameplayAbility {
 
     protected onCancel(_owner: Actor) {}
 
-    /** Implementación concreta que se ejecuta al activar la habilidad. */
+    /** Concrete implementation executed on activation. */
     protected abstract onActivate(owner: Actor): void;
 }

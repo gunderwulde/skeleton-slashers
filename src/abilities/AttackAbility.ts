@@ -4,7 +4,7 @@ import { GameplayAbility } from '../systems/GameplayAbility';
 import { Weapon } from '../weapons/Weapon';
 import { Slash } from '../weapons/Slash';
 
-/** Ataque básico: crea un arma temporal y reproduce la animación del actor. */
+/** Basic attack that creates a temporary weapon and animates the actor. */
 export class AttackAbility extends GameplayAbility {
     constructor(
         private readonly weaponFactory: (scene: Phaser.Scene, owner: Actor) => Weapon = (scene, owner) => new Slash(scene, owner, 72),

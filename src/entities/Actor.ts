@@ -1,13 +1,9 @@
 import * as Phaser from 'phaser';
 import { AbilitySystem } from '../systems/AbilitySystem';
-import { HitAbility } from '../abilities/HitAbility';
-import { MovementAbility } from '../abilities/MovementAbility';
-import { AutoAimAbility } from '../abilities/AutoAimAbility';
-import { DeathAbility } from '../abilities/DeathAbility';
 import { GameplayAbility } from '../systems/GameplayAbility';
 import type { Weapon } from '../weapons/Weapon';
         
-/** Entidad física común para el jugador y los enemigos. */
+/** Shared physical entity for players and enemies. */
 export abstract class Actor extends Phaser.Physics.Arcade.Sprite {
     readonly maxHealth: number;
     health: number;
@@ -31,17 +27,13 @@ export abstract class Actor extends Phaser.Physics.Arcade.Sprite {
         this.health = maxHealth;
         this.walkAnimation = walkAnimation;
         this.abilities = new AbilitySystem(this);
-        this.grantAbility(new HitAbility());
-        this.grantAbility(new MovementAbility());
-        this.grantAbility(new AutoAimAbility());
-        this.grantAbility(new DeathAbility());
-        
+
         scene.add.existing(this);
         scene.physics.add.existing(this);
         this.setCollideWorldBounds(true);
     }
 
-    /** Actualiza cooldowns y el ciclo de vida de las habilidades activas. */
+    /** Updates cooldowns and the lifecycle of active abilities. */
     updateAbilities(delta: number) {
         this.abilities.update(delta);
     }
@@ -58,12 +50,12 @@ export abstract class Actor extends Phaser.Physics.Arcade.Sprite {
         });
     }
 
-    /** Añade una habilidad al conjunto disponible del actor. */
+    /** Adds an ability to the actor's available abilities. */
     grantAbility(ability: GameplayAbility) {
         this.abilities.grantAbility(ability);
     }
 
-    /** Solicita la activación de una habilidad concreta. */
+    /** Requests activation of a specific ability. */
     tryActivateAbility(id: string) {
         return this.abilities.tryActivateAbility(id);
     }
@@ -92,22 +84,22 @@ export abstract class Actor extends Phaser.Physics.Arcade.Sprite {
         return [...this.activeGameplayTags];
     }
 
-    /** Devuelve la entrada que consume la habilidad de movimiento. */
+    /** Returns the input consumed by the movement ability. */
     getMovementInput() {
         return { x: 0, y: 0 };
     }
 
-    /** Devuelve una dirección manual de ataque si el actor dispone de ella. */
+    /** Returns a manual attack direction when one is available. */
     getManualAttackDirection(): Phaser.Math.Vector2 | undefined {
         return undefined;
     }
 
-    /** Devuelve los actores que pueden ser alcanzados por el ataque. */
+    /** Returns actors that can be reached by an attack. */
     getAttackTargets(): Actor[] {
         return [];
     }
 
-    /** Devuelve la dirección usada si el autoaim no encuentra un objetivo. */
+    /** Returns the fallback direction used by auto-aim. */
     getFallbackAttackDirection() {
         const body = this.body;
         if (body && body.velocity.length() > 0) {
@@ -116,7 +108,7 @@ export abstract class Actor extends Phaser.Physics.Arcade.Sprite {
         return this.attackDirection.clone();
     }
 
-    /** Reproduce la animación de caminar y orienta el sprite horizontalmente. */
+    /** Plays the walk animation and flips the sprite horizontally. */
     playMovementAnimation() {
         const body = this.body;
         if (!body) {
@@ -137,7 +129,7 @@ export abstract class Actor extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    /** Aplica daño visual y devuelve la vida restante. */
+    /** Applies damage feedback and returns remaining health. */
     receiveDamage() {
         this.health = Math.max(0, this.health - 1);
         this.emit('damaged', this);
@@ -156,7 +148,7 @@ export abstract class Actor extends Phaser.Physics.Arcade.Sprite {
         return this.health;
     }
 
-    /** Reproduce únicamente la animación corporal del ataque. */
+    /** Plays only the actor's attack animation. */
     playAttackAnimation() {
         this.setVelocity(0, 0);
         this.anims.stop();
@@ -170,7 +162,7 @@ export abstract class Actor extends Phaser.Physics.Arcade.Sprite {
         });
     }
 
-    /** Desactiva el cuerpo y reproduce la animación de muerte. */
+    /** Disables the body and plays the death animation. */
     playDeath(onComplete: () => void) {
         this.setVelocity(0, 0);
         const body = this.body;

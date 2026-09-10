@@ -5,18 +5,18 @@ export interface MovementInput {
     y: number;
 }
 
-/** Abstracción común para cualquier dispositivo de control del jugador. */
+/** Common abstraction for player input devices. */
 export abstract class UserInputController {
     protected attackRequested = false;
 
     abstract getMovement(): MovementInput;
 
-    /** Devuelve la dirección que debe usar el siguiente ataque, si existe. */
+    /** Returns the direction for the next attack, when available. */
     getAttackDirection(): MovementInput | undefined {
         return undefined;
     }
 
-    /** Devuelve y consume una petición de ataque pendiente. */
+    /** Returns and consumes a pending attack request. */
     consumeAttackRequest() {
         const requested = this.attackRequested;
         this.attackRequested = false;
@@ -24,7 +24,7 @@ export abstract class UserInputController {
     }
 }
 
-/** Controlador para WASD y clic izquierdo. */
+/** Controller for WASD and left-click input. */
 export class KeyboardMouseController extends UserInputController {
     private readonly keys: {
         up: Phaser.Input.Keyboard.Key;
@@ -37,7 +37,7 @@ export class KeyboardMouseController extends UserInputController {
         super();
         const keyboard = scene.input.keyboard;
         if (!keyboard) {
-            throw new Error('El teclado no está disponible.');
+            throw new Error('Keyboard input is unavailable.');
         }
 
         this.keys = {
@@ -50,7 +50,7 @@ export class KeyboardMouseController extends UserInputController {
     }
 
     getMovement(): MovementInput {
-        // La salida normalizada se transforma después en velocidad por MovementAbility.
+        // MovementAbility later converts the normalized output into velocity.
         const movement = {
             x: Number(this.keys.right.isDown) - Number(this.keys.left.isDown),
             y: Number(this.keys.down.isDown) - Number(this.keys.up.isDown),
@@ -63,7 +63,7 @@ export class KeyboardMouseController extends UserInputController {
         return movement.x !== 0 || movement.y !== 0 ? movement : undefined;
     }
 
-    /** Convierte un clic izquierdo en una petición consumible de ataque. */
+    /** Converts a left click into a consumable attack request. */
     private handlePointerDown(pointer: Phaser.Input.Pointer) {
         if (pointer.leftButtonDown()) {
             this.attackRequested = true;
@@ -71,7 +71,7 @@ export class KeyboardMouseController extends UserInputController {
     }
 }
 
-/** Controlador preparado para joystick izquierdo y botón principal del gamepad. */
+/** Controller for the left stick and primary gamepad button. */
 export class GamepadController extends UserInputController {
     private readonly pad: Phaser.Input.Gamepad.Gamepad;
 
@@ -90,7 +90,7 @@ export class GamepadController extends UserInputController {
     }
 
     getMovement(): MovementInput {
-        // La zona muerta evita pequeños movimientos causados por ruido del joystick.
+        // The dead zone prevents small movements caused by stick noise.
         const x = this.pad.leftStick.x;
         const y = this.pad.leftStick.y;
         return {

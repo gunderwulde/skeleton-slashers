@@ -1,6 +1,6 @@
 import * as Phaser from 'phaser';
 
-/** Construye el tilemap de la mazmorra y configura sus colisiones. */
+/** Builds the dungeon tilemap and configures its collisions. */
 export class DungeonMap {
     readonly width = 60;
     readonly height = 45;
@@ -35,7 +35,7 @@ export class DungeonMap {
         layer.setCollision([2, 5]);
     }
 
-    /** Rellena el área jugable con las dos variantes de suelo. */
+    /** Fills the playable area with two floor variants. */
     private createFloor(layer: Phaser.Tilemaps.TilemapLayer) {
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
@@ -44,7 +44,7 @@ export class DungeonMap {
         }
     }
 
-    /** Rodea el mapa con paredes y esquinas sólidas. */
+    /** Surrounds the map with solid walls and corners. */
     private createWalls(layer: Phaser.Tilemaps.TilemapLayer) {
         for (let x = 0; x < this.width; x++) {
             layer.putTileAt(x % 5 === 0 ? 5 : 2, x, 0);
@@ -56,7 +56,7 @@ export class DungeonMap {
         }
     }
 
-    /** Coloca puertas y antorchas como decoración del escenario. */
+    /** Places doors and torches as scene decoration. */
     private createDecorations(layer: Phaser.Tilemaps.TilemapLayer) {
         [8, 28, 48].forEach((x) => {
             layer.putTileAt(3, x, 0);

@@ -5,7 +5,7 @@ import { Player } from '../entities/Player';
 import { DungeonMap } from '../maps/DungeonMap';
 import { Weapon } from '../weapons/Weapon';
 
-/** Escena coordinadora del mundo, actores, armas temporales y UI. */
+/** Coordinates the world, actors, temporary weapons, and UI. */
 export class GameScene extends Phaser.Scene {
     private player!: Player;
     private enemies: Enemy[] = [];
@@ -19,7 +19,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     preload() {
-        console.log('Cargando assets para la GameScene...');
+        console.log('Loading GameScene assets...');
         this.load.image('tiles', 'assets/tileset.svg');
         this.load.spritesheet('player', 'assets/player.svg', {
             frameWidth: 32,
@@ -32,7 +32,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     create() {
-        console.log('GameScene Creada: Mazmorra y combate iniciados.');
+        console.log('GameScene created: dungeon and combat started.');
         this.createAnimations();
         this.dungeonMap = new DungeonMap(this);
         this.createActors();
@@ -93,9 +93,9 @@ export class GameScene extends Phaser.Scene {
 
     private handleActorDeath(actor: Actor) {
         if (actor === this.player) {
-            this.statusText.setText('Has muerto. Recarga la página para volver a intentarlo.');
+            this.statusText.setText('You died. Reload the page to try again.');
         } else if (this.enemies.every((enemy) => !enemy.active)) {
-            this.statusText.setText('Todos los esqueletos han sido derrotados.');
+            this.statusText.setText('All skeletons have been defeated.');
         }
     }
 

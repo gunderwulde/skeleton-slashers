@@ -2,7 +2,7 @@ import * as Phaser from 'phaser';
 import { Actor } from '../entities/Actor';
 import { Weapon } from './Weapon';
 
-/** Arma de área que alcanza actores dentro de un círculo. */
+/** Area weapon that reaches actors within a circle. */
 export class Area extends Weapon {
     constructor(
         scene: Phaser.Scene,
